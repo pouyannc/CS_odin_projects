@@ -1,5 +1,5 @@
 def merge_sort(arr1, arr_merged = [])
-  return arr1 if arr1.length == 1
+  return arr1 if arr1.length <= 1 
   
   arr2 = arr1.pop(arr1.length/2)
   arr1 = merge_sort(arr1)
@@ -19,4 +19,4 @@ def merge_sort(arr1, arr_merged = [])
   arr_merged.flatten
 end
 
-p merge_sort([4,8,6,2,1,7,5,3])
+p merge_sort([9,8,7,6,5,4,3,2,1])
