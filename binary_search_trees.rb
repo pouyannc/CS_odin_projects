@@ -12,6 +12,8 @@ end
 
 class Tree
 
+  attr_accessor :root, :arr
+
   def initialize(arr)
     @arr = arr.uniq.sort
     @root = sorted_array_to_BST(@arr)
@@ -93,6 +95,87 @@ class Tree
     return nil      
   end
 
+  def level_order(node = @root, queue = [@root], values = [], &b)
+    unless queue.empty?
+      b.call(queue[0]) if block_given?
+      values.push(node.value)
+      queue.push(node.left) unless node.left.nil?
+      queue.push(node.right) unless node.right.nil?
+      queue.shift
+      level_order(queue[0], queue, values, &b) 
+    end
+    return values unless block_given?
+  end
+
+  def preorder(node = @root, values = [], &b)
+    #DLR
+    unless node.nil?
+      b.call(node) if block_given?
+      values.push(node.value)
+      preorder(node.left, values, &b)
+      preorder(node.right, values, &b)
+    end
+    return values unless block_given?
+  end
+
+  def inorder(node = @root, values = [], &b)
+    #LDR
+    unless node.nil?
+      inorder(node.left, values, &b)
+      b.call(node) if block_given?
+      values.push(node.value)
+      inorder(node.right, values, &b)
+    end
+    return values unless block_given?
+  end
+
+  def postorder(node = @root, values = [], &b)
+    #LRD
+    unless node.nil?
+      postorder(node.left, values, &b)
+      postorder(node.right, values, &b)
+      b.call(node) if block_given?
+      values.push(node.value)
+    end
+    return values unless block_given?
+  end
+
+  def height(node, h = 0)
+    return nil if node.nil?
+
+    return h if node.left.nil? && node.right.nil?
+
+    if node.right.nil?
+      h += 1
+      return height(node.left, h)
+    elsif node.left.nil?
+      h += 1
+      return height(node.right, h)
+    else
+      h += 1
+      r_path = height(node.right, h)
+      l_path = height(node.left, h)
+      r_path > l_path ? (return r_path) : (return l_path)
+    end
+  end
+
+  def depth(node)
+    return nil if node.nil?
+    d = 0
+    current_node = @root
+    while node != current_node do
+      d += 1
+      node.value < current_node.value ? current_node = current_node.left : current_node = current_node.right
+    end
+    return d
+  end
+
+  def balanced?
+  end
+
+  def rebalance
+  end
+
   def pretty_print(node = @root, prefix = '', is_left = true)
     pretty_print(node.right, "#{prefix}#{is_left ? '│   ' : '    '}", false) if node.right
     puts "#{prefix}#{is_left ? '└── ' : '┌── '}#{node.value}"
@@ -115,7 +198,13 @@ new_tree.pretty_print
 new_tree.delete(5)
 new_tree.pretty_print
 
+puts 'level order traversal: '
+new_tree.level_order { |node| print node.value }
 
+p new_tree.preorder
+p new_tree.inorder
+p new_tree.postorder
 
-
+p new_tree.depth(new_tree.root.left)
+p new_tree.height(new_tree.root)
 
