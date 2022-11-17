@@ -85,12 +85,12 @@ class Tree
   end
 
   def find(value, node = @root)
-    if value == node.value
+    if node.value == value
       return node
     elsif value < node.value
-      find(value, node.left)
+      return find(value, node.left)
     else
-      find(value, node.right)
+      return find(value, node.right)
     end
     return nil      
   end
@@ -171,9 +171,21 @@ class Tree
   end
 
   def balanced?
+    self.level_order do |node|
+      node.left.nil? ? height_left = -1 : height_left = height(node.left) 
+      node.right.nil? ? height_right = -1 : height_right = height(node.right)
+      return false if (height_left - height_right).abs > 1
+    end
+    return true
   end
 
   def rebalance
+    unless self.balanced?
+      @root = sorted_array_to_BST(self.inorder)
+    else
+      puts 'Already balanced'
+      return nil
+    end
   end
 
   def pretty_print(node = @root, prefix = '', is_left = true)
@@ -184,27 +196,26 @@ class Tree
 
 end
 
+# driver script
 
+new_tree = Tree.new(Array.new(15) { rand(1..100) })
+puts 'New BST made using 15 random integers between 1 to 100'
+puts "Balanced tree? #{new_tree.balanced?}"
 
-new_tree = Tree.new([7,6,5,8,4,1,2,3])
-new_tree.pretty_print
-new_tree.insert(10)
-new_tree.insert(9)
-new_tree.pretty_print
-new_tree.delete(6)
-new_tree.pretty_print
-new_tree.delete(2)
-new_tree.pretty_print
-new_tree.delete(5)
-new_tree.pretty_print
+puts "Elements in level order: #{new_tree.level_order}\npreorder: #{new_tree.preorder}\ninorder: #{new_tree.inorder}\npostorder: #{new_tree.postorder}\n"
 
-puts 'level order traversal: '
-new_tree.level_order { |node| print node.value }
+new_tree.insert(104)
+new_tree.insert(124)
+new_tree.insert(130)
+new_tree.insert(199)
+puts "\nInserted values: 104, 124, 130, 199"
+puts "Balanced tree? #{new_tree.balanced?}"
 
-p new_tree.preorder
-p new_tree.inorder
-p new_tree.postorder
+sleep(1)
+puts "\nRebalancing..."
+sleep(1)
+new_tree.rebalance
 
-p new_tree.depth(new_tree.root.left)
-p new_tree.height(new_tree.root)
+puts "Balanced tree? #{new_tree.balanced?}"
 
+puts "Elements in level order: #{new_tree.level_order}\npreorder: #{new_tree.preorder}\ninorder: #{new_tree.inorder}\npostorder: #{new_tree.postorder}\n"
