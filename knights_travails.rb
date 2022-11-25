@@ -32,6 +32,51 @@ class Graph
 
 end
 
+def find_least_steps(start_node, end_node)
+  queue = [start_node]
+  steps = 0
+  edges = 1
+  loop do
+    if queue[0] == end_node
+      return steps
+    else
+      queue.push(queue[0].neighbours).flatten!
+      queue.shift
+      edges -= 1
+      if edges == 0
+        edges = queue.length 
+        steps += 1
+      end
+    end
+  end
+end
+
+def find_shortest_path(node, end_node, steps, n_length = [], path = [], queue = [])
+  loop do
+    path.push(node)
+    if steps == 0 && path[-1] == end_node
+      return path
+    elsif steps == 0
+      queue.shift
+      path.pop
+      n_length[0] -= 1
+      while n_length[0] == 0 do
+        path.pop
+        queue.shift
+        n_length.shift
+        n_length[0] -= 1
+        steps += 1
+      end
+      node = queue[0]
+    else
+      steps -= 1
+      queue.unshift(node.neighbours).flatten!
+      n_length.unshift(node.neighbours.length)
+      node = queue[0]
+    end
+  end
+end
+
 def knight_moves(start, finish)
 
   moves = [[-1,-2], [-2,-1], [-2,1], [-1,2], [1,2], [2,1], [2,-1], [1,-2]]
@@ -53,8 +98,13 @@ def knight_moves(start, finish)
     end
   end
 
-  
+  start_node = knight_move_graph.find_node(start)
+  end_node = knight_move_graph.find_node(finish)
+
+  steps = find_least_steps(start_node, end_node)
+
+  return find_shortest_path(start_node, end_node, steps).map {|n| n.coord}
   
 end
 
-knight_moves([0,0], [0,0])
+p knight_moves([0,3], [6,3])
